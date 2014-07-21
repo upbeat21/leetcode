@@ -1,41 +1,42 @@
 public class Solution {
-	ArrayList<boolean[]> rowchecker = new ArrayList<boolean[]>();
-	ArrayList<boolean[]> colchecker = new ArrayList<boolean[]>();
-	ArrayList<boolean[]> blockchecker = new ArrayList<boolean[]>();
     public void solveSudoku(char[][] board) {
-        for(int i=0;i<9;i++) {
-			rowchecker.add(new boolean[9]);
-			colchecker.add(new boolean[9]);
-			blockchecker.add(new boolean[9]);
-		}
+        int row = board.length;
+		if(row != 9) return;
+		int col = board[0].length;
+		if(col != 9) return;
 		helper(board, 0, 0);
     }
-	public void helper(char[][] board, int i, int j) {
+	public boolean helper(char[][] board, int i, int j) {
 		if(j == 9) {
 			i++;
+			if(i == 9) return true;
 			j = 0;
-			if(i == 9) return;
-		}
-		for(int p=0;p<9;p++) {
-			if(board[i][j] == '.') {
-				if(check(board, i, j, p)) {
-					board[i][j] = (char)(p + '1');
-					rowchecker.get(i)[p] = true;
-					colchecker.get(j)[p] = true;
-					blockchecker.get(i/3*3+j/3)[p] = true;
-					helper(board, i, j+1);
+		}	
+		if(board[i][j] == '.') {
+			for(int k=1;k<=9;k++) {
+				board[i][j] = (char)(k+'0');
+				if(check(board, i, j)) {
+					if(helper(board, i, j+1)) return true;
 				}
-			} else {
-				int c = board[i][j] - '1';
-				rowchecker.get(i)[c] = true;
-				colchecker.get(j)[c] = true;
-				blockchecker.get(i/3*3+j/3)[c] = true;
-				helper(board, i, j+1);
 			}
+			board[i][j] = '.';
+			return false;
+		} else {
+			return helper(board, i, j+1);
 		}
 	}
-	public boolean check(char[][] board, int i, int j, int c) {
-		if(rowchecker.get(i)[c] || colchecker.get(j)[c] || blockchecker.get(i/3*3+j/3)[c]) return false;
+	public boolean check(char[][] board, int i, int j) {
+		for(int k=0;k<9;k++) {
+			if(k != j && board[i][j] == board[i][k]) return false;
+		}
+		for(int k=0;k<9;k++) {
+			if(k != i && board[i][j] == board[k][j]) return false;
+		}
+		for(int row=i/3*3;row<i/3*3+3;row++) {
+			for(int col=j/3*3;col<j/3*3+3;col++) {
+				if((row != i && col != j) && board[i][j] == board[row][col]) return false;
+			}
+		}
 		return true;
 	}
 }
