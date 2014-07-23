@@ -8,36 +8,27 @@
  * }
  */
 public class Solution {
-    public ArrayList<Integer> postorderTraversal(TreeNode root) {
-        ArrayList<Integer> result = new ArrayList<Integer>();
-		if(root == null) return result;
-		TreeNode curr = root;
+    public List<Integer> postorderTraversal(TreeNode root) {
+        List<Integer> list = new ArrayList<Integer>();
+		if(root == null) return list;
 		Stack<TreeNode> stack = new Stack<TreeNode>();
-		TreeNode lastVisited = null;
 		stack.push(root);
+		TreeNode lastVisited = null;
 		while(!stack.isEmpty()) {
-			curr = stack.peek();
+			TreeNode curr = stack.peek();
 			if(lastVisited == null || lastVisited.left == curr || lastVisited.right == curr) {
 				if(curr.left != null) stack.push(curr.left);
-				else {
-					if(curr.right != null) stack.push(curr.right);
-					else {
-						result.add(curr.val);
-						stack.pop();
-					}
-				}
+				else if(curr.right != null) stack.push(curr.right);
+				else list.add(stack.pop().val);
 			} else if(curr.left == lastVisited) {
 				if(curr.right != null) stack.push(curr.right);
-				else {
-					result.add(curr.val);
-					stack.pop();
-				}
+				else list.add(stack.pop().val);
 			} else if(curr.right == lastVisited) {
-				result.add(curr.val);
-				stack.pop();
+				list.add(stack.pop().val);
 			}
 			lastVisited = curr;
 		}
-		return result;
+		return list;
     }
+	
 }
