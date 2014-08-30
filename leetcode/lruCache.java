@@ -1,84 +1,79 @@
 public class LRUCache {
-	DoublyLinkedList list;
-	HashMap<Integer, DoublyLinkedNode> map;
-	int capacity;
-	public static class DoublyLinkedNode {
-		int key;
-		int val
-		DoublyLinkedNode prev;
-		DoublyLinkedNode next;
-		public DoublyLinkedNode(int k, int v) {
-			key = k;
-			val = v;
-			prev = null;
-			next = null;
-		}
-	}
-	
-	public static class DoublyLinkedList {
-		private DoublyLinkedNode oldest;
-		private DoublyLinkedNode latest;
-		private int size;
-		public DoublyLinkedList() {
-			oldest == null;
-			latest == null;
-		}
-		public void addToEnd(DoublyLinkedList node) {
-			if(oldest == null && latest == null) {
-				oldest = node;
-				latest = node;
-			} else {
-				latest.next = node;
-				node.prev = latest;
-				latest = node;
-			}
-			size++;
-		}
-		public DoublyLinkedNode deleteFront() {
-			if(oldest == null && latest == null) {
-				throw new NullPointerException();
-			}
-			DoublyLinkedNode tmp = oldest;
-			tmp.next = null;
-			oldest = oldest.next;
-			oldest.prev = null;
-			size--;
-			return tmp;
-		}
-		public int size() {
-			return size;
-		}
-		public boolean isEmpty() {
-			return size == 0;
-		}
-	}
+    
+    DoublyLinkedListNode head;
+    DoublyLinkedListNode tail;
+    Map<Integer, DoublyLinkedListNode> map;
+    int capacity;
+    int size;
+    
+    public static class DoublyLinkedListNode {
+        int key;
+        int val;
+        DoublyLinkedListNode prev;
+        DoublyLinkedListNode next;
+        public DoublyLinkedListNode(int k, int v) {
+            this.key = k;
+            this.val = v;
+            prev = null;
+            next = null;
+        }
+    }
     
     public LRUCache(int capacity) {
         this.capacity = capacity;
-		list = new DoublyLinkedList();
-		map = new HashMap<Integer, DoublyLinkedNode>();
+        head = new DoublyLinkedListNode(-1, -1);
+        tail = new DoublyLinkedListNode(-1, -1);
+        head.next = tail;
+        tail.prev = head;
+        map = new HashMap<Integer, DoublyLinkedListNode>();
+        size = 0;
     }
     
     public int get(int key) {
-        return map.get(key).value;
+        int result = 0;
+        if(map.containsKey(key)) {
+            DoublyLinkedListNode node = map.get(key);
+            result = node.val;
+            node.prev.next = node.next;
+            node.next.prev = node.prev;
+            appendToTail(node);
+        } else result = -1;
+        return result;
     }
     
     public void set(int key, int value) {
-		if(map.contains(key)) {
-			DoublyLinkedNode entry = map.get(key);
-			entry.prev.next = entry.next;
-			entry.prev = null;
-			entry.next = null;
-			list.addToEnd(entry);
-		} else {
-			DoublyLinkedNode entry = new DoublyLinkedNode(key, value);
-			list.addToEnd(entry);
-			map.add(key, entry);
-			if(list.size() > capacity) {
-				DoublyLinkedNode node = list.deleteFront();
-				map.remove(node.key);
-			}
-		}
-        
+        DoublyLinkedListNode node = null;
+        if(map.containsKey(key)) {
+        	node = map.get(key);
+        	node.prev.next = node.next;
+        	node.next.prev = node.prev;
+        	node = new DoublyLinkedListNode(key, value);
+        }
+        else {
+            node = new DoublyLinkedListNode(key, value);
+            size++;
+        }
+        appendToTail(node);
+        if(size > capacity) {
+            DoublyLinkedListNode h = removeHead();
+            size--;
+            map.remove(h.key);
+        }
+        map.put(key, node);
+    }
+    
+    public void appendToTail(DoublyLinkedListNode node) {
+        DoublyLinkedListNode prev = tail.prev;
+        node.next = tail;
+        tail.prev = node;
+        prev.next = node;
+        node.prev = prev;
+    }
+    
+    public DoublyLinkedListNode removeHead() {
+        DoublyLinkedListNode node = head.next;
+        head.next = node.next;
+        node.next.prev = head;
+        return node;
     }
 }
